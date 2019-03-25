@@ -14,7 +14,7 @@ Usage
 In python console
 ```python
 from chromatogram import Chromatogram
-abi = Chromatogram("path/to/input.abi", 
+abi = Chromatogram("path/to/input.ab1", 
                     seq_range=(50, 100), # sequence range to show in the plot
                     rev_complement=False, # show reverse complement sequence and plot
                     figsize=(10,5)
@@ -25,7 +25,7 @@ abi.plot(seq_range=(100,150)) # show sequence range from 100 to 150
 
 Command line:
 ```bash
-python chromatogram.py input.abi output.pdf seq_from seq_to
+python chromatogram.py input.ab1 output.pdf seq_from seq_to
 ```
 
 Dependency
