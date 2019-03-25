@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 class Chromaotogram:
     """
     :param abi: abi file to parse
-    :param show_range: seqence range to show
+    :param show_range: sequence range to show
     :param rev_complement: bool
     :param figsize: tuple, matplotlib figsize
     :param filename: save figure with filename. Default: None, discard.
@@ -20,7 +20,7 @@ class Chromaotogram:
         >>>record.annotations['abif_raw'].keys()
         >>>channel_base_order = record.annotations['abif_raw']['FWO_1']
         
-    DATA.9-DATA.12: Vectors containing the signal intensities for each channel.
+    DATA9-DATA12: Vectors containing the signal intensities for each channel.
     FWO_1: A string containing the base corresponding to each channel. 
            For example, if it is "ACGT", then DATA9 = A, DATA10 = C, DATA11 = G and DATA12 = T.
     PLOC2: Peak locations as an index of the trace vectors.
@@ -52,8 +52,8 @@ class Chromaotogram:
         self.channels = ['DATA9', 'DATA10', 'DATA11', 'DATA12']
         self.channel_base = list(record.annotations['abif_raw']['FWO_1'])
         self.channel_colors=['black','green','red','blue']
-        self.color2base = { k:v for k, v in zip(channel_colors, channel_base)}
-        self.base2color = { k:v for v, k in zip(channel_colors, channel_base)}
+        self.color2base = { k:v for k, v in zip(self.channel_colors, self.channel_base)}
+        self.base2color = { k:v for v, k in zip(self.channel_colors, self.channel_base)}
         self.base_peak_index = record.annotations['abif_raw']['PLOC2']      
         self.trace = defaultdict(list)    
         self.figsize = figsize
@@ -62,33 +62,36 @@ class Chromaotogram:
         if rev_complement:
             ## {G: DATA9, A: DATA10, T:DATA11, C: DATA12}
             self.sequence = record.reverse_complement().seq
-            self.ch_start, self.ch_end = self.base_peak_index[start], self.base_peak_index[end]
             # CTAG
             self.channel_colors=['blue','red','green','black']
-            for c in channels: 
-                self.trace[c] = list(reversed(record.annotations['abif_raw'][c]))
+            for ch in channels: 
+                self.trace[ch] = list(reversed(record.annotations['abif_raw'][ch]))
             # reversed the peak location index of reversed complement sequence
-            ch_len = len(trace[c])
-            base_peak_index = list(reversed([ch_len-j-1 for j in self.base_peak_index]))
+            ch_len = len(trace[ch])
+            self.base_peak_index = list(reversed([ch_len-j-1 for j in self.base_peak_index]))
         else:
             self.sequence = record.seq
-            self.ch_start, self.ch_end = self.base_peak_index[self.start], self.base_peak_index[self.end] 
-            for c in channels: 
-                self.trace[c] = record.annotations['abif_raw'][c]
+            for ch in channels: 
+                self.trace[ch] = record.annotations['abif_raw'][ch]
 
-
-    def plot(self, filename=None):
+    def plot(self, show_range=None, figsize=None, filename=None):
         """plotting"""
+        # select range to show 
+        if show_range is not None: self.start, self.end = show_range       
+        self.ch_start, self.ch_end = self.base_peak_index[self.start], self.base_peak_index[self.end]
+
+        # plot
+        if figsize is not None: self.figsize = figsize
         fig, ax = plt.subplots(figsize=self.figsize)
         for ch, c in zip(self.channels, self.channel_colors): 
-            ax.plot(range(self.ch_start, self.ch_end),self.trace[ch][self.ch_start:self.ch_end], 
+            ax.plot(range(self.ch_start, self.ch_end), self.trace[ch][self.ch_start:self.ch_end], 
                     color=c, lw=1, label=self.color2base[c])
-            ax.fill_between(range(ch_start,ch_end), 0, trace[ch][ch_start:ch_end], 
+            ax.fill_between(range(self.ch_start, self.ch_end), 0, self.trace[ch][self.ch_start:self.ch_end], 
                             facecolor=c, alpha=0.125)
         # Plot bases at peak positions
         for i, peak in zip(range(self.start, self.end), self.base_peak_index[self.start:self.end]):
             ax.text(peak, -25, self.sequence[i],
-                    color=self.base2color[sequence[i]],
+                    color=self.base2color[self.sequence[i]],
                     horizontalalignment="center")    
         #ax.set_yticklabels([])
         ax.legend(bbox_to_anchor=(1.02, 0.5), loc=2, borderaxespad=0.)

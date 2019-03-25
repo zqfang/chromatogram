@@ -19,6 +19,7 @@ abi = Chromatogram("path/to/{filename}.abi",
                     figsize=(10,5)
                     )
 abi.plot() # set filename="chromatogram.pdf" to save your figure
+abi.plot(show_range=(100,150)) # show sequence range from 100 to 150
 ```
 
 Dependency
