@@ -1,7 +1,12 @@
 Chromatogram
 -------------------
 This pythoin script is used for parsing sanger sequencing results (abi file).
-It's usefull to create chrmatogram when used for a paper.
+It's usefull to create chrmatogram when used for a paper.  
+
+Example:  
+![avatar](data/test.png "Example output")
+
+
 
 Usage
 ============
