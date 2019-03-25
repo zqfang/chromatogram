@@ -1,13 +1,13 @@
+import sys
 from Bio import SeqIO
 from collections import defaultdict
 import matplotlib.pyplot as plt
 
 
-
 class Chromaotogram:
     """
     :param abi: abi file to parse
-    :param show_range: sequence range to show
+    :param seq_range: sequence range to show
     :param rev_complement: bool
     :param figsize: tuple, matplotlib figsize
     :param filename: save figure with filename. Default: None, discard.
@@ -46,38 +46,51 @@ class Chromaotogram:
                 "FWO_1",  # base order for channels
                ]
     """
-    def __init__(self, abi, show_range=(0,50), rev_complement=False, figsize=(10,5), **kwargs):
-        record = SeqIO.read(abi, format='abi')
+    def __init__(self, abi, seq_range=(0,50), rev_complement=False, figsize=(10,5), **kwargs):
+        self.record = SeqIO.read(abi, format='abi')
         ## {G: DATA9, A: DATA10, T:DATA11, C: DATA12}
         self.channels = ['DATA9', 'DATA10', 'DATA11', 'DATA12']
-        self.channel_base = list(record.annotations['abif_raw']['FWO_1'])
+        self.channel_base = list(self.record.annotations['abif_raw']['FWO_1'])
         self.channel_colors=['black','green','red','blue']
         self.color2base = { k:v for k, v in zip(self.channel_colors, self.channel_base)}
         self.base2color = { k:v for v, k in zip(self.channel_colors, self.channel_base)}
-        self.base_peak_index = record.annotations['abif_raw']['PLOC2']      
+        self.base_peak_index = self.record.annotations['abif_raw']['PLOC2']      
         self.trace = defaultdict(list)    
         self.figsize = figsize
-        self.start, self.end = show_range
+        self.start, self.end = seq_range
 
         if rev_complement:
-            ## {G: DATA9, A: DATA10, T:DATA11, C: DATA12}
-            self.sequence = record.reverse_complement().seq
-            # CTAG
-            self.channel_colors=['blue','red','green','black']
-            for ch in channels: 
-                self.trace[ch] = list(reversed(record.annotations['abif_raw'][ch]))
-            # reversed the peak location index of reversed complement sequence
-            ch_len = len(trace[ch])
-            self.base_peak_index = list(reversed([ch_len-j-1 for j in self.base_peak_index]))
+            self.reverse_complement()
         else:
-            self.sequence = record.seq
+            self.sequence = self.record.seq
             for ch in channels: 
-                self.trace[ch] = record.annotations['abif_raw'][ch]
+                self.trace[ch] = self.record.annotations['abif_raw'][ch]
 
-    def plot(self, show_range=None, figsize=None, filename=None):
-        """plotting"""
+    def reverse_complement(self, record=None):
+        """
+        :param record: seqRecord obj of abi file.
+        """
+        ## {G: DATA9, A: DATA10, T:DATA11, C: DATA12}
+        record2 = self.record
+        if record is not None: record2 =  record
+        self.sequence = record2.reverse_complement().seq        
+        # CTAG
+        self.channel_colors=['blue','red','green','black']
+        for ch in channels: 
+            self.trace[ch] = list(reversed(record2.annotations['abif_raw'][ch]))
+        # reversed the peak location index of reversed complement sequence
+        ch_len = len(trace[ch])
+        self.base_peak_index = list(reversed([ch_len-j-1 for j in self.base_peak_index]))              
+
+    def plot(self, seq_range=None, figsize=None, filename=None):
+        """plotting
+        :param seq_range: sequence range to show
+        :param figsize: tuple, matplotlib figsize
+        :param filename: output file name. If None, do not save figure.
+         
+        """
         # select range to show 
-        if show_range is not None: self.start, self.end = show_range       
+        if seq_range is not None: self.start, self.end = seq_range       
         self.ch_start, self.ch_end = self.base_peak_index[self.start], self.base_peak_index[self.end]
 
         # plot
@@ -101,3 +114,9 @@ class Chromaotogram:
             return
 
 
+if __name__ == "__main__":
+    # simple example 
+    if len(sys.argv) < 2:
+        print("Usage: python chromatogram.py input.abi output.pdf seq_from seq_to") 
+    abi = Chromaotogram(sys.argv[1], (argv[3], argv[4]))
+    abi.plot(filename=sys.argv[2])

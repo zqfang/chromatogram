@@ -11,15 +11,21 @@ Example:
 Usage
 ============
 
+In python console
 ```python
 from chromatogram import Chromatogram
-abi = Chromatogram("path/to/{filename}.abi", 
-                    show_range=(50, 100), # sequence range to show in the plot
+abi = Chromatogram("path/to/input.abi", 
+                    seq_range=(50, 100), # sequence range to show in the plot
                     rev_complement=False, # show reverse complement sequence and plot
                     figsize=(10,5)
                     )
-abi.plot() # set filename="chromatogram.pdf" to save your figure
-abi.plot(show_range=(100,150)) # show sequence range from 100 to 150
+abi.plot() # set filename="output.pdf" to save your figure
+abi.plot(seq_range=(100,150)) # show sequence range from 100 to 150
+```
+
+Command line:
+```bash
+python chromatogram.py input.abi output.pdf seq_from seq_to
 ```
 
 Dependency
