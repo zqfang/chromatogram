@@ -63,7 +63,7 @@ class Chromaotogram:
             self.reverse_complement()
         else:
             self.sequence = self.record.seq
-            for ch in channels: 
+            for ch in self.channels: 
                 self.trace[ch] = self.record.annotations['abif_raw'][ch]
 
     def reverse_complement(self, record=None):
@@ -76,10 +76,10 @@ class Chromaotogram:
         self.sequence = record2.reverse_complement().seq        
         # CTAG
         self.channel_colors=['blue','red','green','black']
-        for ch in channels: 
+        for ch in self.channels: 
             self.trace[ch] = list(reversed(record2.annotations['abif_raw'][ch]))
         # reversed the peak location index of reversed complement sequence
-        ch_len = len(trace[ch])
+        ch_len = len(self.trace[ch])
         self.base_peak_index = list(reversed([ch_len-j-1 for j in self.base_peak_index]))              
 
     def plot(self, seq_range=None, figsize=None, filename=None):
