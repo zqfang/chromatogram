@@ -1,0 +1,29 @@
+*.egg-info
+*.egg
+*.eggs
+*.EGG
+*.EGG-INFO
+*.idea
+bin
+build
+develop-eggs
+downloads
+eggs
+fake-eggs
+parts
+dist
+*.pyc
+*.pyo
+*.tmp*
+.cache
+.DS_Store
+.vscode
+tmp/
+# vim
+.*swp
+# docs
+docs/_build/doctest
+
+# tests
+tests/.ipynb_checkpoints
+.pytest_cache
